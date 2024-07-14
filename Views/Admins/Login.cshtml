@@ -1,0 +1,78 @@
+﻿@model Movies.Models.Admin
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Ensure the layout is specified
+}
+
+<style>
+    /* Custom CSS styles for the login form */
+    body {
+        background-image: url('https://e1.pxfuel.com/desktop-wallpaper/574/383/desktop-wallpaper-movie-poster-mix-of-movies.jpg'); /* Replace with your image path */
+        background-size: cover;
+        background-position: center;
+        height: 100vh; /* Full viewport height */
+    }
+
+    .login-container {
+        background-color: rgba(255, 255, 255, 0.9); /* White background with transparency */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+        margin-top: 50px; /* Adjust margin as needed */
+        max-width: 400px; /* Limit width for better readability */
+        margin: auto; /* Center horizontally */
+    }
+
+    .login-title {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="login-container">
+                <h1 class="login-title">Admin Login</h1>
+                <hr />
+                <form asp-action="Login">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label">Password</label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Login" class="btn btn-primary btn-block" />
+                    </div>
+                </form>
+                <div class="back-link">
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,166 @@
+﻿@@model IEnumerable<Movies.Models.Movie>
+@model IEnumerable<Movies.Models.UserBokking>
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/User1/_Layout.cshtml"; // Adjusted layout path
+}
+
+<style>
+    /* Custom CSS styles for the dashboard */
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .dashboard-container {
+        background-color: #ffffff; /* White background */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+        margin-top: 50px; /* Adjust margin as needed */
+        max-width: 800px; /* Limit width for better readability */
+        margin: auto; /* Center horizontally */
+    }
+
+    .dashboard-title {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .profile-info {
+        margin-bottom: 20px;
+    }
+
+    .action-links {
+        margin-top: 20px;
+    }
+
+    .action-link {
+        display: block;
+        margin-bottom: 10px;
+        padding: 10px;
+        text-align: center;
+        color: #ffffff;
+        background-color: #007bff; /* Bootstrap primary color */
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+        .action-link:hover {
+            background-color: #0056b3; /* Darker shade of primary color on hover */
+            text-decoration: none;
+        }
+
+    .card {
+        width: 18rem;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for better readability */
+        border: none;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+    .card-img-top {
+        max-height: 400px; /* Limit height of the image */
+        object-fit: cover; /* Maintain aspect ratio */
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="dashboard-container">
+                <h1 class="dashboard-title">User Dashboard</h1>
+                <hr />
+                <div class="profile-info">
+                    @* Retrieve session variables using Context directive *@
+                    @{
+                        var httpContext = Context.Request.HttpContext;
+                        int? userId = httpContext.Session.GetInt32("UserId");
+                        string fullName = httpContext.Session.GetString("FullName");
+
+                        if (userId != null && fullName != null)
+                        {
+                            <h4>Welcome, @fullName!</h4>
+                            <p>Email: @userId</p>
+                        }
+                        else
+                        {
+                            <p>Error retrieving user information.</p>
+                        }
+                    }
+                </div>
+                <div class="action-links">
+                    <a asp-action="allMovies" class="action-link">View Movies</a>
+                    <a asp-action="EditProfile" class="action-link">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="table">
+<thead>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SeatNumber)
+        </th>
+        <th></th>
+    </tr>
+</thead>
+<tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SeatNumber)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@* @item.Id *@">Edit</a> |
+                <a asp-action="Details" asp-route-id="@* @item.Id *@">Details</a> |
+                <a asp-action="Delete" asp-route-id="@* @item.Id *@">Delete</a>
+            </td>
+        </tr>
+    }
+</tbody>
+</table>
+
+@* <div class="content">
+    <div class="container">
+        <div class="row justify-content-center">
+            @foreach (var item in Model)
+            {
+                <div class="card">
+                    <img src="@item.PosterUrl" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Actors</p>
+                        <a href="#" class="btn btn-primary">Booking</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+ *@
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

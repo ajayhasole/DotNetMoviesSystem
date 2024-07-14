@@ -1,0 +1,373 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Movies.Models;
+
+namespace Movies.Controllers
+{
+    public class AdminsController : Controller
+    {
+        private readonly MoviesContext _context;
+
+        public AdminsController(MoviesContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Admins
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.Admins.ToListAsync());
+        }
+
+        // GET: Admins/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var admin = await _context.Admins
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (admin == null)
+            {
+                return NotFound();
+            }
+
+            return View(admin);
+        }
+
+        // GET: Admins/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Admins/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Password")] Admin admin)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(admin);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(admin);
+        }
+
+        // GET: Admins/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var admin = await _context.Admins.FindAsync(id);
+            if (admin == null)
+            {
+                return NotFound();
+            }
+            return View(admin);
+        }
+
+        // POST: Admins/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Password")] Admin admin)
+        {
+            if (id != admin.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(admin);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AdminExists(admin.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(admin);
+        }
+
+        // GET: Admins/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var admin = await _context.Admins
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (admin == null)
+            {
+                return NotFound();
+            }
+
+            return View(admin);
+        }
+
+        // POST: Admins/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var admin = await _context.Admins.FindAsync(id);
+            if (admin != null)
+            {
+                _context.Admins.Remove(admin);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool AdminExists(int id)
+        {
+            return _context.Admins.Any(e => e.Id == id);
+        }
+
+
+
+        //private readonly AdminsService _adminsService; [HttpPost]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Login(Admin admin)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var foundAdmin = await _context.Admins.FirstOrDefaultAsync(m => m.Email == admin.Email);
+        //        if (foundAdmin != null)
+        //        {
+
+        //            HttpContext.Session.SetInt32("AdminId", foundAdmin.Id);
+        //            HttpContext.Session.SetString("AdminName", foundAdmin.Name);
+
+        //            return RedirectToAction(nameof(Index)); // Redirect to admin index or dashboard
+        //        }
+        //        else
+        //        {
+        //            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        //        }
+        ////    }
+
+        //   // return RedirectToAction(nameof(Index));
+        //     return View(admin); 
+        //}
+
+
+        //public AdminController(AdminService adminService)
+        //{
+        //    _adminService = adminService;
+        //}
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login([Bind("Email,Password")] Admin admin)
+        {
+
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source = (localdb)\ProjectModels; Initial Catalog = Movies; Integrated Security = True;";
+            List<Admin> list = new List<Admin>();
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = cn;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "select * from Admin where email='" + admin.Email + "'and password='" + admin.Password + "';";
+
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+
+
+                    Admin user = new Admin();
+
+                   // int adminId = dr.GetInt32(dr.GetOrdinal("Id"));
+                     //string adminName = dr.GetString(dr.GetOrdinal("Name"));
+
+                   //HttpContext.Session.SetInt32("AdminId", adminId);
+                   //HttpContext.Session.SetString("AdminName", adminName);
+                    dr.Close();
+                    return RedirectToAction("Index", "Movies");
+                    //user.Id = dr.GetInt32("Id");
+
+                    //user.Email = dr.GetString("Email");
+
+                    //user.Password = dr.GetString("Password");
+                    //list.Add(user);
+
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid email or password."); // Add error message to ModelState
+                    return View(admin);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            finally
+            {
+                cn.Close();
+            }
+            return View(list);
+        }
+
+            //if (ModelState.IsValid)
+            //{
+
+            //    var foundAdmin = await _context.Admins.FirstOrDefaultAsync(m => m.Email == admin.Email);
+
+            //    if (foundAdmin != null)
+            //    {
+
+            //        bool isPasswordValid = VerifyPassword(admin.Password, foundAdmin.Password);
+
+            //        if (isPasswordValid)
+            //        {
+            //            // Set session variables upon successful login
+            //            HttpContext.Session.SetInt32("AdminId", foundAdmin.Id);
+            //            HttpContext.Session.SetString("AdminName", foundAdmin.Name);
+
+            //            return RedirectToAction(nameof(Index)); // Redirect to admin index or dashboard
+            //        }
+            //    }
+
+            //    // If admin not found or password is incorrect
+            //    ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            //}
+
+            // return View(admin);
+        
+
+
+            //[HttpPost]
+            //[ValidateAntiForgeryToken]
+            //public async Task<IActionResult> Login([Bind("Email,Password")] Admin admin)
+            //{
+            //    if (ModelState.IsValid)
+            //    {
+            //        SqlConnection cn = new SqlConnection();
+            //        cn.ConnectionString = @"Data Source=(localdb)\ProjectModels;Initial Catalog=Movies;Integrated Security=True;";
+
+            //        try
+            //        {
+            //            await cn.OpenAsync();
+
+            //            SqlCommand cmd = new SqlCommand();
+            //            cmd.Connection = cn;
+            //            cmd.CommandType = CommandType.Text;
+            //            cmd.CommandText = "SELECT Id, Name FROM Admin WHERE Email=@Email AND Password=@Password";
+            //            cmd.Parameters.AddWithValue("@Email", admin.Email);
+            //            cmd.Parameters.AddWithValue("@Password", admin.Password);
+
+            //            SqlDataReader dr = await cmd.ExecuteReaderAsync();
+
+            //            if (dr.Read())
+            //            {
+            //                int adminId = dr.GetInt32(dr.GetOrdinal("Id"));
+            //                string adminName = dr.GetString(dr.GetOrdinal("Name"));
+
+            //                HttpContext.Session.SetInt32("AdminId", adminId);
+            //                HttpContext.Session.SetString("AdminName", adminName);
+
+            //                dr.Close();
+            //                return RedirectToAction(nameof(Index));
+            //            }
+            //            else
+            //            {
+            //                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            // Handle exceptions appropriately, e.g., logging
+            //            ModelState.AddModelError(string.Empty, "An error occurred while logging in.");
+            //        }
+            //        finally
+            //        {
+            //            cn.Close();
+            //        }
+            //    }
+
+            //    return View(admin);
+            //}
+
+
+
+
+
+
+        
+
+        // Helper method to verify password (example, implement proper password hashing and comparison)
+        private bool VerifyPassword(string enteredPassword, string storedPasswordHash)
+        {
+            // Implement proper password hashing and comparison logic here
+            // Example: return BCrypt.Net.BCrypt.Verify(enteredPassword, storedPasswordHash);
+            return enteredPassword == storedPasswordHash; // Replace with actual secure implementation
+        }
+
+
+        //public ActionResult Login()
+        //{
+        //    // Add your login logic here
+        //    return View();
+        //}
+
+        //[HttpGet]
+        //public IActionResult Login()
+        //{
+        //    return View();
+        //}
+
+        // In AdminController.cs
+        //public IActionResult Index()
+        //{
+        //    return View("~/Views/Admin/Index.cshtml");
+        //}
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+    }
+}
